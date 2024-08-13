@@ -1,12 +1,31 @@
+.container {
+    width: 50%;
+    margin-top: 50px;
+    border: 1px solid rgba(128, 128, 128, 0.366);
+    border-radius: 2px;
+    box-shadow: 2px 2px 4px 1px rgba(0, 0, 0, 0.2);
+}
 
-/* 
+h1 {
+    text-align: center;
+    margin-bottom: 50px;
+}
 
-    You can write your own styles here...
-    
-    
-    ...Or you can use the import command to include 
-    other sylesheets into your bunde as well, e.j:
-    
-    import 'relative/path/to/stylesheet.scss';
+ul {
+    list-style: none;
+    border: 5px;
+    border-color: gray;
+}
 
-*/
+input {
+    border: none;
+    width: 100%;
+    height: 50px;
+    margin-left: -20px;
+    padding-top: 10px;
+    padding-bottom: 10px;
+}
+
+/* .icon {
+    padding-bottom: 20px;
+} */
