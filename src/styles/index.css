@@ -23,9 +23,14 @@ ul {
 input {
     width: 100%;
     height: 50px;
-    margin-bottom: 10px;
+    margin-top: 20px;
+    margin-bottom: 20px;
     padding-top: 10px;
     padding-bottom: 10px;
+    border-bottom: gray;
+}
+.inputhr {
+    color: rgb(170, 167, 167);
 }
 
 button {
@@ -36,6 +41,10 @@ button {
 }
 li:hover button {
     display: block;
+}
+
+.lihr {
+    margin-left: -30px;
 }
 
 .tasksleft {
