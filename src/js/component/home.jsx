@@ -7,7 +7,9 @@ const Home = () => {
 	
 	const saveTodo = (event) => {
 		if (event.key === 'Enter') {
-		setTodos(todos.concat(inputValue))
+			let trimmedValue = inputValue.trim()
+			if(trimmedValue !== "")
+		setTodos(todos.concat(trimmedValue))
 		setInputValue('');
 		}
 	};
