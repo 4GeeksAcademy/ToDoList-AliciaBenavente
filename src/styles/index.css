@@ -34,10 +34,7 @@ input {
 }
 
 .icon {
-    border: none;
-    border-style: none;
-    background-color: white;
-    float: inline-end;
+    display: none;
 }
 li:hover .icon {
     display: block;

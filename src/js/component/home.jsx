@@ -3,23 +3,8 @@ import React, { useState, useEffect } from "react";
 
 const Home = () => {
 	const [ inputValue, setInputValue ] = useState("");
-	const [ todos, setTodos ] = useState ([]);
-	const [ user, setUser ] = useState ("");
-	const [ selectedUser, setSelectedUser] = useState ("");
-	
-	// function saveTodo (event)  {
-	// 	if (event.key === 'Enter') {
-	// 		let trimmedValue = inputValue.trim();
-	// 		if(trimmedValue !== "")
-	// 	setTodos(todos.concat(trimmedValue))
-	// 	setInputValue('');
-	// 	}
-	// };
+	const [ todos, setTodos ] = useState ([]);	
 
-	// function deleteTodo (index) {
-	// 	const updatedTodo = todos.filter((_, i) => i !== index);
-	// 	setTodos(updatedTodo);
-	// };
 
 	function deleteAllTodos () {
 		if(todos.length === 0) {
@@ -31,24 +16,39 @@ const Home = () => {
 		}
 	};
 
+	function checkUsers () {
+		fetch(`https://playground.4geeks.com/todo/users`, {
+			method: "GET"
+		})
+          .then(response => {
+				return response.json();
+          })
+          .then(data => {
+			let totalUsers = data.users;
+			let userExist = totalUsers.find((user) => user.name === "Closet");
+			if (!userExist) {createUser();}
+			else {
+				getTodos();
+				localStorage.setItem("name", userExist.name)
+			}
+          })
+          .catch(error => {
+            	console.error("User exist", error);
+          });
+	}
+
 	function createUser () {
-        fetch(`https://playground.4geeks.com/todo/users/Closet`, {
+        fetch(`https://playground.4geeks.com/todo/users/${localStorage.getItem("name")}`, {
 			method: "POST"
 		})
           .then(response => {
-			if (response.status === 201) {
-				// console.log(response)
 				return response.json();
-			} else if (response.status === 400) {
-				console.log(response)
-				getTodos();
-			};
           })
           .then(data => {
 				console.log(data);
           })
           .catch(error => {
-            	console.error("Error fetching Todo", error);
+            	console.error("User exist", error);
           });
     }
 
@@ -75,10 +75,6 @@ const Home = () => {
     }
 
 	function addTodo () {
-		// let newTodo = { 
-		// 	"label": inputValue,
-		// 	"is_done": false,
-		// };
 		console.log(typeof inputValue)
 		fetch(`https://playground.4geeks.com/todo/todos/Closet`, {
 			headers: {
@@ -117,19 +113,22 @@ const Home = () => {
 
 	function deleteTodo (todoId) {
 
-		fetch(`https://playground.4geeks.com/todo/todos/Closet/${todoId}`, {
+		fetch(`https://playground.4geeks.com/todo/todos/${todoId}`, {
 			method: "DELETE",
 			headers: {
 				"Content-Type": "application/json"
 			}})
 		.then(response => {
-			if (!response.ok) {
-				throw new Error("Couldn't delete task")
+			console.log(todoId)
+			if (response.ok) {
+				getTodos()
+				return response;
 			}
-			return response.json();
+			throw new Error("Couldn't delete task")
 		})
 		.then(data => {
-			setTodos(data.todos);
+			console.log(data)
+			// setTodos(data.todos);
 		}
 		)
 		.catch(error => {
@@ -140,24 +139,21 @@ const Home = () => {
 	// function updateTheData () {};
 
     useEffect(() => {
-		createUser()
+		checkUsers()
     },[])
 
 	return (
 		<>
 			<p>My ToDos</p>
 			<div className="container">
-			<h1 className="userName">{}</h1>
-				{/* <form id="users">
-					<select onChange={(e) => setSelectedUser(e.target.value)} value={selectedUser}>
-						<option id="userSelection" value="users">Select your user</option> {users?.map((user, index) => (<option key={index} value={user}>{user}</option>))}
-					</select>
-				</form> */}
 				<input type="text" className="form-control border border-0" placeholder="What do you need to do?" onKeyDown={handleEnter} onChange={(e) => setInputValue(e.target.value)} value={inputValue}></input>
 				<hr className="inputhr" />
 				<ul className="list">
 					{todos ? todos.map((task, index) => (
-						<li id="task" key={index}>{task.label} {task.label && (<button onClick={() => deleteTodo(index)}><svg xmlns="http:/5/www.w3.org/2000/svg" width="22px" height="22px" className="icon bi bi-trash text-danger float-end" viewBox="0 0 448 512"><path d="M170.5 51.6L151.5 80l145 0-19-28.4c-1.5-2.2-4-3.6-6.7-3.6l-93.7 0c-2.7 0-5.2 1.3-6.7 3.6zm147-26.6L354.2 80 368 80l48 0 8 0c13.3 0 24 10.7 24 24s-10.7 24-24 24l-8 0 0 304c0 44.2-35.8 80-80 80l-224 0c-44.2 0-80-35.8-80-80l0-304-8 0c-13.3 0-24-10.7-24-24S10.7 80 24 80l8 0 48 0 13.8 0 36.7-55.1C140.9 9.4 158.4 0 177.1 0l93.7 0c18.7 0 36.2 9.4 46.6 24.9zM80 128l0 304c0 17.7 14.3 32 32 32l224 0c17.7 0 32-14.3 32-32l0-304L80 128zm80 64l0 208c0 8.8-7.2 16-16 16s-16-7.2-16-16l0-208c0-8.8 7.2-16 16-16s16 7.2 16 16zm80 0l0 208c0 8.8-7.2 16-16 16s-16-7.2-16-16l0-208c0-8.8 7.2-16 16-16s16 7.2 16 16zm80 0l0 208c0 8.8-7.2 16-16 16s-16-7.2-16-16l0-208c0-8.8 7.2-16 16-16s16 7.2 16 16z"/></svg></button>)}
+						<li id="task" key={index}>{task.label} {task.label && (<button className="border border-0 bg-white float-end pe-4" onClick={() => deleteTodo(task.id)}><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" className="icon bi bi-trash text-danger mt-1" viewBox="0 0 15 15">
+						<path d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0z"/>
+						<path d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1zM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4zM2.5 3h11V2h-11z"/>
+					  </svg></button>)}
 					{index < todos.length - 1 && <hr className="lihr"/>}</li>
 				)): "no todos"}
 				</ul>
