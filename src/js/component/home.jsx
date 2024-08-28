@@ -5,17 +5,6 @@ const Home = () => {
 	const [ inputValue, setInputValue ] = useState("");
 	const [ todos, setTodos ] = useState ([]);	
 
-
-	function deleteAllTodos () {
-		if(todos.length === 0) {
-			alert("No tasks to be deleted")
-		} else if (todos.length !== 0) {
-			if (window.confirm("Are you sure you want to delete all your ToDos from the list?") === true) {
-				return setTodos([])
-			}
-		}
-	};
-
 	function checkUsers () {
 		fetch(`https://playground.4geeks.com/todo/users`, {
 			method: "GET"
@@ -24,37 +13,37 @@ const Home = () => {
 				return response.json();
           })
           .then(data => {
-			let totalUsers = data.users;
-			let userExist = totalUsers.find((user) => user.name === "Closet");
-			if (!userExist) {createUser();}
-			else {
-				getTodos();
+			  let totalUsers = data.users;
+			  let userExist = totalUsers.find((user) => user.name === "Closet");
+			  if (!userExist) {createUser();}
+			  else {
+				  getTodos();
 				localStorage.setItem("name", userExist.name)
 			}
           })
           .catch(error => {
-            	console.error("User exist", error);
-          });
-	}
+			  console.error("User exist", error);
+			});
+		}
 
-	function createUser () {
+		function createUser () {
         fetch(`https://playground.4geeks.com/todo/users/${localStorage.getItem("name")}`, {
 			method: "POST"
 		})
-          .then(response => {
-				return response.json();
-          })
-          .then(data => {
-				console.log(data);
-          })
-          .catch(error => {
-            	console.error("User exist", error);
-          });
+		.then(response => {
+			return response.json();
+		})
+		.then(data => {
+			console.log(data);
+		})
+		.catch(error => {
+			console.error("User exist", error);
+		});
     }
-
-
+	
+	
 	function getTodos () {
-        fetch(`https://playground.4geeks.com/todo/users/Closet`, {
+		fetch(`https://playground.4geeks.com/todo/users/Closet`, {
 			method: "GET"
 		})
 		.then(response => {
@@ -63,17 +52,17 @@ const Home = () => {
 			} else {
 				throw new Error ("Couldn't fetch the Todo");
 			};
-			})
+		})
 		.then(data => {
-				setTodos(data.todos);
-				console.log(todos);
-				console.log(data)
-			})
+			setTodos(data.todos);
+			console.log(todos);
+			console.log(data)
+		})
 		.catch(error => {
-				console.error("Error fetching Todo", error);
-			});
+			console.error("Error fetching Todo", error);
+		});
     }
-
+	
 	function addTodo () {
 		console.log(typeof inputValue)
 		fetch(`https://playground.4geeks.com/todo/todos/Closet`, {
@@ -85,39 +74,39 @@ const Home = () => {
 				is_done: false,
 			}),
 			method: "POST"})
-		.then(response => {
-			if (response.status === 201) {
-				getTodos()
-				return response.json();
-			}
-			throw new Error("Couldn't add task")
-		})
-		.then(data => {
-			console.log(data)
+			.then(response => {
+				if (response.status === 201) {
+					getTodos()
+					return response.json();
+				}
+				throw new Error("Couldn't add task")
+			})
+			.then(data => {
+				console.log(data)
 			setInputValue("");
 		}
-		)
-		.catch(error => {
-			console.error("Error adding task:", error);
-		});
+	)
+	.catch(error => {
+		console.error("Error adding task:", error);
+	});
+}
+
+function handleEnter (event)  {
+	if (event.key === 'Enter') {
+		let trimmedValue = inputValue.trim();
+		if(trimmedValue !== "")
+			addTodo()
 	}
-
-	function handleEnter (event)  {
-		if (event.key === 'Enter') {
-			let trimmedValue = inputValue.trim();
-			if(trimmedValue !== "")
-				addTodo()
-		}
-	};
+};
 
 
-	function deleteTodo (todoId) {
-
-		fetch(`https://playground.4geeks.com/todo/todos/${todoId}`, {
-			method: "DELETE",
-			headers: {
-				"Content-Type": "application/json"
-			}})
+function deleteTodo (todoId) {
+	
+	fetch(`https://playground.4geeks.com/todo/todos/${todoId}`, {
+		method: "DELETE",
+		headers: {
+			"Content-Type": "application/json"
+		}})
 		.then(response => {
 			console.log(todoId)
 			if (response.ok) {
@@ -128,15 +117,44 @@ const Home = () => {
 		})
 		.then(data => {
 			console.log(data)
-			// setTodos(data.todos);
 		}
-		)
-		.catch(error => {
-			console.error("Error deleting task:", error);
-		});
-	};
+	)
+	.catch(error => {
+		console.error("Error deleting task:", error);
+	});
+};
 
-	// function updateTheData () {};
+function deleteAllTodos () {
+	
+	fetch("https://playground.4geeks.com/todo/users/Closet", {
+		method: "DELETE",
+		headers: {
+			"Content-Type": "application/json"
+		}})
+		.then(response => {
+			console.log(response)
+			response.text()
+				setTodos([])
+				createUser()
+		})
+		.then(data => {
+			console.log(data)
+		}
+	)
+	.catch(error => {
+		console.error("Error deleting task:", error);
+	});
+};
+
+function handleDeleteAllTodos () {
+	if(todos.length === 0) {
+		alert("No tasks to be deleted")
+	} else if (todos.length !== 0) {
+		if (window.confirm("Are you sure you want to delete all your ToDos from the list?") === true) {
+			deleteAllTodos()
+		}
+	}
+};
 
     useEffect(() => {
 		checkUsers()
@@ -159,7 +177,7 @@ const Home = () => {
 				</ul>
 				<div className="tasksleft pb-2">{todos.length > 0 ? `${todos.length} task${todos.length > 1 ? 's' : ''} left` : 'No tasks, add a task'}</div>
 			</div>
-			<button className="deleteAllToDos" onClick={() => deleteAllTodos()}>Delete ToDos</button>
+			<button className="deleteAllToDos" onClick={() => handleDeleteAllTodos()}>Delete ToDos</button>
 		</>
 	);
 };
